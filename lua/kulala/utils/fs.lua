@@ -229,6 +229,11 @@ M.get_scripts_dir = function()
   return dir
 end
 
+M.get_js_engine_lib_dir = function()
+  local dir = M.join_paths(M.get_plugin_root_dir(), "parser", "scripts", "engines", "javascript", "lib")
+  return dir
+end
+
 M.get_tmp_scripts_build_dir = function()
   local dir = M.join_paths(M.get_plugin_tmp_dir(), "scripts", "build")
   return dir

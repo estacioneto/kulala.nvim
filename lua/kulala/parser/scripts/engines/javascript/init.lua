@@ -126,7 +126,41 @@ local generate_one = function(script_type, is_external_file, script_data)
 
     if FS.file_exists(script_data) then
       script_cwd = FS.get_dir_by_filepath(script_data)
-      userscript = FS.read_file(script_data)
+
+      local temp_file_path = FS.join_paths(REQUEST_SCRIPTS_DIR, FS.get_uuid() .. ".js")
+      local cmd = {
+        NODE_BIN,
+        NPM_BIN,
+        "--prefix",
+        SCRIPTS_ENGINE_LIB_DIR,
+        "exec",
+        "--",
+        "rollup",
+        "--input",
+        script_data,
+        "--file",
+        temp_file_path,
+      }
+
+      local output, co
+      co = coroutine.create(function()
+        output = Shell.run(cmd, { err_msg = "Rollup build failed", verbose = true }, function()
+          Async.co_resume(co)
+        end)
+        Async.co_yield(co)
+      end)
+
+      Async.co_resume(co)
+
+      output:wait()
+      if output and output.stderr and not output.stderr:match("^%s*$") then
+        Logger.error(("Rollup errors: %s"):format(output.stderr))
+        userscript = ""
+      else
+        userscript = FS.read_file(temp_file_path)
+        vim.print(FS.file_exists(temp_file_path))
+        FS.delete_file(temp_file_path) -- Delete the temp file after reading
+      end
     else
       Logger.error(("Could not read the %s script: %s"):format(script_type, script_data))
       userscript = ""
