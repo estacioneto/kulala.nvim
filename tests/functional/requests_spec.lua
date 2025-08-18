@@ -290,6 +290,30 @@ describe("requests", function()
       assert.has_string(result, expected)
     end)
 
+    it("uses mjs scripts allowing for top-level awaits", function()
+      vim.cmd.edit(h.expand_path("requests/advanced_G.http"))
+
+      curl.stub {
+        ["*"] = {
+          headers = h.load_fixture("fixtures/advanced_G_headers.txt"),
+          body = h.load_fixture("fixtures/advanced_G_body.txt"),
+          cookies = h.load_fixture("fixtures/cookies.txt"),
+        },
+      }
+
+      kulala.run_all()
+      wait_for_requests(1)
+
+      result = vim.json.decode(DB.data.current_request.body)
+      assert.is_same("application/json", result.request_headers)
+
+      assert.is_same("TEST_MJS_SET_REQUEST_VAR", result.response_body)
+      assert.is_same("gunicorn/19.9.0", result.response_headers)
+      assert.is_same("keep-alive", result.response_headers_1)
+      assert.is_same("close", result.response_headers_2)
+      assert.is_same("bar1", result.response_cookies)
+    end)
+
     it("skips request conditionally", function()
       kulala_config.halt_on_error = false
       curl.stub { ["*"] = { body = '{ "foo": "bar" }' } }

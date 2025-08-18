@@ -1,0 +1,15 @@
+{
+  "args": {
+    "baz": "bax",
+    "foo": "bar"
+  },
+  "data": "{\r\n  \"mjs_set_request_var\": \"TEST_MJS_SET_REQUEST_VAR\"\r\n}",
+  "files": {},
+  "form": {},
+  "json": {
+    "mjs_set_request_var": "TEST_MJS_SET_REQUEST_VAR",
+  },
+  "origin": "77.231.37.125",
+  "url": "https://httpbin.org/advanced_f1?foo=bar&baz=bax"
+}
+

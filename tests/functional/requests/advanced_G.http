@@ -1,0 +1,9 @@
+### REQUEST_ONE
+< ./../scripts/advanced_G_pre_main.mjs
+POST https://httpbin.org/advanced_g1?foo=bar&baz=bax HTTP/1.1
+Accept: application/json
+Content-Type: application/json
+
+{
+  "mjs_set_request_var": "TEST_MJS_SET_REQUEST_VAR",
+}
