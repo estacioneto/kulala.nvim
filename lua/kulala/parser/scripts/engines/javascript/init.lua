@@ -116,6 +116,8 @@ local generate_one = function(script_type, is_external_file, script_data)
   local buf_dir = FS.get_current_buffer_dir()
 
   if is_external_file then
+    assert(type(script_data) == "string", "script_data must be a string when is_external_file is true")
+
     -- if script_data starts with ./ or ../, it is a relative path
     if string.match(script_data, "^%./") or string.match(script_data, "^%../") then
       local local_script_path = script_data:gsub("^%./", "")
@@ -132,7 +134,7 @@ local generate_one = function(script_type, is_external_file, script_data)
   end
 
   script_cwd = script_cwd or buf_dir
-  userscript = userscript or vim.fn.join(script_data, "\n")
+  userscript = userscript or type(script_data) == "table" and vim.fn.join(script_data, "\n") or ""
   base_file = base_file .. "\n" .. userscript
 
   local uuid = FS.get_uuid()
