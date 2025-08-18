@@ -1,8 +1,8 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { Assert  } from './Assert';
+import { Assert } from './Assert';
 
-const _GLOBAL_VARIABLES_FILEPATH = path.join(__dirname, '..', 'global_variables.json');
+const _GLOBAL_VARIABLES_FILEPATH = path.join(import.meta.dirname ?? __dirname ?? __dirname, '..', 'global_variables.json');
 
 const getGlobalVariables = (): Record<string, string> => {
   let json: Record<string, string> = {};

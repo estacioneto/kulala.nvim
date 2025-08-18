@@ -5,10 +5,15 @@ import terser from '@rollup/plugin-terser';
 export default [
   {
     input: './src/pre_request.ts',
-    output: {
-      dir: 'dist',
-      format: 'cjs'
-    },
+    output: [
+      {
+        file: 'dist/pre_request.js',
+        format: 'cjs'
+      }, {
+        file: 'dist/pre_request.mjs',
+        format: 'es'
+      }
+    ],
     plugins: [
       typescript(),
       nodeResolve(),
@@ -24,10 +29,15 @@ export default [
   },
   {
     input: './src/post_request.ts',
-    output: {
-      dir: 'dist',
-      format: 'cjs'
-    },
+    output: [
+      {
+        file: 'dist/post_request.js',
+        format: 'cjs'
+      }, {
+        file: 'dist/post_request.mjs',
+        format: 'es'
+      }
+    ],
     plugins: [
       typescript(),
       nodeResolve(),

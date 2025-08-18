@@ -13,7 +13,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { Response, type ResponseType } from './PostRequestResponse';
 
-const _REQUEST_ASSERTS_FILEPATH = path.join(__dirname, '..', '..', 'request_asserts.json');
+const _REQUEST_ASSERTS_FILEPATH = path.join(import.meta.dirname ?? __dirname ?? __dirname, '..', '..', 'request_asserts.json');
 
 interface AssertResult {
   name: string;

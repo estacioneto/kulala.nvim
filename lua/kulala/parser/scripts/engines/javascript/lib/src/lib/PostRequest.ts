@@ -1,8 +1,8 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-const _REQUEST_FILEPATH = path.join(__dirname, '..', '..', 'request.json');
-const _REQUEST_VARIABLES_FILEPATH = path.join(__dirname, 'request_variables.json');
+const _REQUEST_FILEPATH = path.join(import.meta.dirname ?? __dirname, '..', '..', 'request.json');
+const _REQUEST_VARIABLES_FILEPATH = path.join(import.meta.dirname ?? __dirname, 'request_variables.json');
 
 type RequestVariables = Record<string, string>;
 

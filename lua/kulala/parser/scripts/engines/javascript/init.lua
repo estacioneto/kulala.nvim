@@ -18,18 +18,31 @@ local NODE_BIN = vim.fn.exepath("node")
 local SCRIPTS_DIR = FS.get_scripts_dir()
 local REQUEST_SCRIPTS_DIR = FS.get_request_scripts_dir()
 local SCRIPTS_BUILD_DIR = FS.get_tmp_scripts_build_dir()
+local SCRIPTS_ENGINE_LIB_DIR = FS.get_js_engine_lib_dir()
 
 local BASE_DIR = FS.join_paths(SCRIPTS_DIR, "engines", "javascript", "lib")
-local BASE_FILE_PRE_CLIENT_ONLY = FS.join_paths(SCRIPTS_BUILD_DIR, "dist", "pre_request_client_only.js")
-local BASE_FILE_PRE = FS.join_paths(SCRIPTS_BUILD_DIR, "dist", "pre_request.js")
-local BASE_FILE_POST_CLIENT_ONLY = FS.join_paths(SCRIPTS_BUILD_DIR, "dist", "post_request_client_only.js")
-local BASE_FILE_POST = FS.join_paths(SCRIPTS_BUILD_DIR, "dist", "post_request.js")
+
+---Generates the base file path for a given script type and file extension.
+---@param script_type string The script type (e.g., "pre_request_client_only").
+---@param file_extension string The file extension (e.g., ".js" or ".mjs").
+---@return string The generated base file path.
+local function generate_base_file_path(script_type, file_extension)
+  return FS.join_paths(SCRIPTS_BUILD_DIR, "dist", script_type .. file_extension)
+end
 
 local FILE_MAPPING = {
-  pre_request_client_only = BASE_FILE_PRE_CLIENT_ONLY,
-  pre_request = BASE_FILE_PRE,
-  post_request_client_only = BASE_FILE_POST_CLIENT_ONLY,
-  post_request = BASE_FILE_POST,
+  [".js"] = {
+    pre_request_client_only = generate_base_file_path("pre_request_client_only", ".js"),
+    pre_request = generate_base_file_path("pre_request", ".js"),
+    post_request_client_only = generate_base_file_path("post_request_client_only", ".js"),
+    post_request = generate_base_file_path("post_request", ".js"),
+  },
+  [".mjs"] = {
+    pre_request_client_only = generate_base_file_path("pre_request_client_only", ".mjs"),
+    pre_request = generate_base_file_path("pre_request", ".mjs"),
+    post_request_client_only = generate_base_file_path("post_request_client_only", ".mjs"),
+    post_request = generate_base_file_path("post_request", ".mjs"),
+  },
 }
 
 local function get_build_ver()
@@ -41,8 +54,10 @@ local is_uptodate = function()
   DB.session.js_build_ver_repo = DB.session.js_build_ver_repo or get_build_ver()
 
   return DB.settings.js_build_ver_local == DB.session.js_build_ver_repo
-    and FS.file_exists(BASE_FILE_PRE)
-    and FS.file_exists(BASE_FILE_POST)
+    and FS.file_exists(FILE_MAPPING[".js"].pre_request)
+    and FS.file_exists(FILE_MAPPING[".js"].post_request)
+    and FS.file_exists(FILE_MAPPING[".mjs"].pre_request)
+    and FS.file_exists(FILE_MAPPING[".mjs"].post_request)
 end
 
 ---@param wait boolean|nil -- wait to complete
@@ -106,7 +121,8 @@ end
 local generate_one = function(script_type, is_external_file, script_data)
   local userscript
 
-  local base_file_path = FILE_MAPPING[script_type]
+  local output_file_extension = type(script_data) == "string" and script_data:match("%.mjs$") and ".mjs" or ".js"
+  local base_file_path = FILE_MAPPING[output_file_extension] and FILE_MAPPING[output_file_extension][script_type]
   if not base_file_path then return end
 
   local base_file = FS.read_file(base_file_path)
@@ -114,7 +130,6 @@ local generate_one = function(script_type, is_external_file, script_data)
 
   local script_cwd
   local buf_dir = FS.get_current_buffer_dir()
-
   if is_external_file then
     assert(type(script_data) == "string", "script_data must be a string when is_external_file is true")
 
@@ -127,7 +142,7 @@ local generate_one = function(script_type, is_external_file, script_data)
     if FS.file_exists(script_data) then
       script_cwd = FS.get_dir_by_filepath(script_data)
 
-      local temp_file_path = FS.join_paths(REQUEST_SCRIPTS_DIR, FS.get_uuid() .. ".js")
+      local temp_file_path = FS.join_paths(REQUEST_SCRIPTS_DIR, FS.get_uuid() .. output_file_extension)
       local cmd = {
         NODE_BIN,
         NPM_BIN,
@@ -172,7 +187,7 @@ local generate_one = function(script_type, is_external_file, script_data)
   base_file = base_file .. "\n" .. userscript
 
   local uuid = FS.get_uuid()
-  local script_path = FS.join_paths(REQUEST_SCRIPTS_DIR, uuid .. ".js")
+  local script_path = FS.join_paths(REQUEST_SCRIPTS_DIR, uuid .. output_file_extension)
 
   FS.write_file(script_path, base_file)
 

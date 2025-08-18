@@ -2,8 +2,8 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-const _RESPONSE_HEADERS_FILEPATH = path.join(__dirname, '..', '..', 'headers.txt');
-const _RESPONSE_BODY_FILEPATH = path.join(__dirname, '..', '..', 'body.txt');
+const _RESPONSE_HEADERS_FILEPATH = path.join(import.meta.dirname ?? __dirname, '..', '..', 'headers.txt');
+const _RESPONSE_BODY_FILEPATH = path.join(import.meta.dirname ?? __dirname, '..', '..', 'body.txt');
 
 interface HeaderObject {
   name: string,
